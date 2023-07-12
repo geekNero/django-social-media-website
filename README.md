@@ -1,1 +1,1 @@
-Link to the template files: https://github.com/tomitokko/django-social-media-template
+This is a forked project for assignment purpose. Trying to tailor it for my purposes
