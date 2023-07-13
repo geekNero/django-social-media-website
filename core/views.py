@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Profile, Post, LikePost, FollowersCount
+from .models import Profile, Post, LikePost, FollowersCount, HashTag
 from itertools import chain
-from .user_functions import get_following
+from .user_functions import get_following, get_hash_feed
+from django.http import JsonResponse
 import random
 
 
@@ -21,7 +22,8 @@ def index(request):
         feed.append(feed_lists)
 
     feed_list = list(chain(*feed))
-
+    if len(feed_list)<10:
+        feed_list = feed_list + get_hash_feed(request.user.username,10-len(feed_list))
     # user suggestion starts
     all_users = User.objects.all()
     new_suggestions_list = []
@@ -88,6 +90,17 @@ def search(request):
         username_profile_list = list(chain(*username_profile_list))
     return render(request, 'search.html',
                   {'user_profile': user_profile, 'username_profile_list': username_profile_list})
+
+
+@login_required(login_url='signin')
+def add_hash_tag(request):
+    if request.method == 'POST':
+        hashtag = request.POST['textbox']
+        username = request.user.username
+        Hashtag = HashTag.objects.create(hashtag=hashtag, user=username)
+        Hashtag.save()
+        return JsonResponse({'message': 'Success! Your data was submitted.', 'status_code': 200})
+    return JsonResponse({'message': '', 'status_code': 400})
 
 
 @login_required(login_url='signin')
@@ -207,6 +220,8 @@ def signup(request):
                 # create a Profile object for the new user
                 user_model = User.objects.get(username=username)
                 new_profile = Profile.objects.create(user=user_model, id_user=user_model.id)
+                new_hashtag = HashTag.objects.create(user=username, hashtag="Cats")
+                new_hashtag.save()
                 new_profile.save()
                 return redirect('settings')
         else:

@@ -267,9 +267,14 @@
                     </div>
 
                     <div uk-lightbox>
+                        {% if post.image %}
                         <a href="{{post.image.url}}">
                             <img src="{{post.image.url}}" alt="">
+                        {% else %}
+                        <a href="{{post.url}}">
+                            <img src="{{post.url}}" alt="">
                         </a>
+                        {% endif %}
                     </div>
 
 
@@ -301,8 +306,13 @@
                                         </div>
                                         
                                     </a> -->
+                            {% if post.image %}
                             <a href="{{post.image.url}}" class="flex items-center space-x-2 flex-1 justify-end"
                                 download>
+                            {% else %}
+                            <a href="{{post.url}}" class="flex items-center space-x-2 flex-1 justify-end"
+                                download>
+                            {% endif %}
                                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                     aria-hidden="true" role="img" width="25" height="25"
                                     preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16">
@@ -400,6 +410,13 @@
                         </div>
                         {% endfor %}
 
+                            <div class="px-4 py-3">
+                            <form id="addHashTag">
+                                {% csrf_token %}
+                                <input type="text" id="some-box" name="textbox" placeholder="Follow a #HashTag" class="w-full py-2 px-3 border border-gray-300 rounded-md">
+                                <button type="button" onclick="submitForm()" style="background-color: blue;" class="mt-3 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">Submit</button>
+                            </form>
+                        </div>
                     </div>
 
                 </div>
@@ -426,6 +443,28 @@
 
     <!-- Scripts
     ================================================== -->
+    <script>
+    function submitForm() {
+        console.log("ajax function reached")
+        var form = document.getElementById("addHashTag");
+        var formData = new FormData(form);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/hashtag", true);
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                // Handle the response from the backend
+                console.log(xhr.responseText);
+                var textbox = document.getElementById("some-box")
+                textbox.value = "";
+            }
+        };
+
+        xhr.send(formData);
+    }
+    </script>
     <script src="{% static 'assets/js/tippy.all.min.js' %}"></script>
     <script src="{% static 'assets/js/jquery-3.3.1.min.js' %}"></script>
     <script src="{% static 'assets/js/uikit.js' %}"></script>

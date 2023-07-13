@@ -20,6 +20,7 @@ class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     user = models.CharField(max_length=100)
     image = models.ImageField(upload_to='post_images')
+    url = models.CharField(max_length=300, null=True)
     caption = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
     no_of_likes = models.IntegerField(default=0)
@@ -40,3 +41,10 @@ class FollowersCount(models.Model):
 
     def __str__(self):
         return self.user
+
+class HashTag(models.Model):
+    user = models.CharField(max_length=100)
+    hashtag = models.CharField(max_length=100)
+    page_id = models.IntegerField(default=1)
+    def __str__(self):
+        return self.hashtag
